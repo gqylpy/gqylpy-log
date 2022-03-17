@@ -8,7 +8,7 @@ setuptools.setup(
     author_email='gqylpy@outlook.com',
     license='Apache 2.0',
     long_description=open('README.md', encoding='utf8').read(),
-    url='http://www.gqylpy.com',
+    url='https://github.com/gqylpy/gqylpy-log',
     packages=[g.__name__],
     classifiers=[
         'Environment :: Web Environment',
