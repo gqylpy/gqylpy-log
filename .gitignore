@@ -1,8 +1,10 @@
+*~
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
 *.pyc
+*$py.class
 
 # C extensions
 *.so
@@ -104,3 +106,5 @@ ENV/
 # netCDF Files
 *.nc
 conda-requirements.txt
+
+self_test.py

@@ -13,7 +13,7 @@
 ─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
 ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-Copyright © 2022 GQYLPY. 竹永康 <gqylpy@outlook.com>
+Copyright (C) 2022 GQYLPY <http://gqylpy.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,28 +29,40 @@ limitations under the License.
 """
 import os
 import sys
-import uuid
 import logging
 
-__default__: logging.Logger
+__first__: logging.Logger
 
+gpack = sys.modules[__package__]
 gcode = sys.modules[__name__]
-gpack = sys.modules[__name__[:-6]]
 
 
-def __init__(gname: str = None, **params) -> logging.Logger:
-    logger = logging.Logger(gname or uuid.uuid4().hex, params['level'])
-    formatter = logging.Formatter(params['logfmt'], params['datefmt'])
+def __init__(
+        name: str,
+        *,
+        level: str = 'NOTSET',
+        output: str = 'stream',
+        logfmt: str = '[%(asctime)s] [%(module)s.%(funcName)s.'
+                      'line%(lineno)d] [%(levelname)s] %(message)s',
+        datefmt: str = '%F %T',
+        logfile: str = None,
+        gname: str = None
+) -> logging.Logger:
+    if output not in ("stream", "file", "stream,file", "file,stream"):
+        raise type('ParameterError', (TypeError,), {'__module__': __package__})(
+            'Parameter "output" optional values are ["stream", "file", "stream,file"].'
+        )
 
-    if 'stream' in params['output']:
+    logger = logging.Logger(name, level)
+    formatter = logging.Formatter(logfmt, datefmt)
+
+    if 'stream' in output:
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
-    if 'file' in params['output']:
-        try:
-            logfile: str = params['logfile']
-        except KeyError:
+    if 'file' in output:
+        if logfile is None:
             starter: str = os.path.basename(sys.argv[0])
             logfile: str = f'/var/log/{starter[:-3]}.log'
 
@@ -62,47 +74,72 @@ def __init__(gname: str = None, **params) -> logging.Logger:
         logger.addHandler(handler)
 
     if gname:
-        if not hasattr(gcode, '__default__') or gcode.__default__.name == 'builtins':
-            gcode.__default__ = logger
+        if not hasattr(gcode, '__first__') or gcode.__first__.name == 'built-in':
+            gcode.__first__ = logger
         setattr(gpack, gname, logger)
 
     return logger
 
 
-def debug(msg: str, *, gname: logging.Logger = None):
-    log('debug', msg, gname)
-
-
-def info(msg: str, *, gname: logging.Logger = None):
-    log('info', msg, gname)
-
-
-def warning(msg: str, *, gname: logging.Logger = None):
-    log('warning', msg, gname)
-
-
-def error(msg: str, *, gname: logging.Logger = None):
-    log('error', msg, gname)
-
-
-def critical(msg: str, *, gname: logging.Logger = None):
-    log('critical', msg, gname)
-
-
-def log(level: str, msg: str, gname: logging.Logger = None):
-    try:
-        logger = gname or __default__
-    except NameError:
-        logger = __init__(
-            gname='builtins',
-            level=gpack.level,
-            output=gpack.output,
-            **({'logfile': gpack.logfile}
-               if gpack.logfile != '/var/log/{default is your startup filename}.log'
-               else {}),
-            datefmt=gpack.datefmt,
-            logfmt=gpack.logfmt
+def __call__(method: str, msg: str, *, gname: (str, logging.Logger) = None, **kw):
+    if gname is None:
+        if not hasattr(gcode, '__first__'):
+            gobj: logging.Logger = __init__(
+                name='built-in',
+                level=gpack.level,
+                output=gpack.output,
+                logfmt=gpack.logfmt,
+                datefmt=gpack.datefmt,
+                **({'logfile': gpack.logfile} if gpack.logfile !=
+                    '/var/log/{default is your startup filename}.log' else {}),
+                gname='built-in'
+            )
+            setattr(gcode, '__first__', gobj)
+        gobj: logging.Logger = __first__
+    elif gname.__class__ is str:
+        gobj: logging.Logger = getattr(gpack, gname, None)
+        if gobj.__class__ is not logging.Logger:
+            raise NameError(f'gname "{gname}" not found in {gpack.__name__}.')
+    elif gname.__class__ is logging.Logger:
+        gobj: logging.Logger = gname
+    else:
+        x: str = gname.__class__.__name__
+        raise TypeError(
+            f'Parameter "gname" type must be a str '
+            f'or logging.Logger instance. not "{x}".'
         )
-    getattr(logger, level)(msg)
 
-# '[%(asctime)s] [%(module)s.%(funcName)s line:%(lineno)d] [%(levelname)s] %(message)s'
+    if 'stacklevel' in kw:
+        if kw['stacklevel'].__class__ is not int:
+            if not kw['stacklevel'].isdigit():
+                x: str = kw['stacklevel'].__class__.__name__
+                raise TypeError(
+                    f'Parameter "stacklevel" type must be a "int", not "{x}".'
+                )
+            kw['stacklevel'] = int(kw['stacklevel'])
+        if kw['stacklevel'] < 3:
+            kw['stacklevel'] = 3
+    else:
+        kw['stacklevel'] = 3
+
+    getattr(gobj, method)(msg, **kw)
+
+
+def debug(msg: str, *, gname: (str, logging.Logger) = None, **kw):
+    __call__('debug', msg, gname=gname, **kw)
+
+
+def info(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
+    __call__('info', msg, gname=gobj, **kw)
+
+
+def warning(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
+    __call__('warning', msg, gname=gobj, **kw)
+
+
+def error(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
+    __call__('error', msg, gname=gobj, **kw)
+
+
+def critical(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
+    __call__('critical', msg, gname=gobj, **kw)

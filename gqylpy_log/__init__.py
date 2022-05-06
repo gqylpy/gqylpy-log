@@ -13,7 +13,7 @@
 ─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
 ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-Copyright © 2022 GQYLPY. 竹永康 <gqylpy@outlook.com>
+Copyright (C) 2022 GQYLPY <http://gqylpy.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,65 +28,62 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 __version__ = 1, 0, 'dev1'
+__author__  = '竹永康 <gqylpy@outlook.com>'
+__source__  = 'https://github.com/gqylpy/gqylpy-log'
 
-NOTSET, DEBUG, INFO, WARNING, WARN, ERROR, CRITICAL, FATAL = \
-    'NOTSET', 'DEBUG', 'INFO', 'WARNING', 'WARN', 'ERROR', 'CRITICAL', 'FATAL'
+NOTSET   = 'NOTSET'
+DEBUG    = 'DEBUG'
+INFO     = 'INFO'
+WARN     = 'WARN'
+WARNING  = 'WARNING'
+ERROR    = 'ERROR'
+CRITICAL = 'CRITICAL'
+FATAL    = 'FATAL'
 
 level:   str = NOTSET
-output:  str = 'stream'  # set('stream', 'file')
+output:  str = 'stream'
 logfile: str = '/var/log/{default is your startup filename}.log'
 datefmt: str = '%F %T'
-logfmt:  str = '[%(asctime)s] [%(levelname)s] %(message)s'
+logfmt:  str = '[%(asctime)s] [%(module)s.%(funcName)s.' \
+               'line%(lineno)d] [%(levelname)s] %(message)s'
 
 
-def __init__(gname: str = None, **params) -> 'logging.Logger':
-    """Get a logging.Logger object.
+def __init__(
+        name:    str,
+        *,
+        level:   str = None,
+        output:  str = None,
+        logfmt:  str = None,
+        datefmt: str = None,
+        logfile: str = None,
+        gname:   str = None
+) -> 'logging.Logger':
+    """Get a logging.Logger instance.
 
-    @param gname:
-        Assigns the initialized logging.Logger object
-        to a variable in the current module, if not None.
+    @param name:    The name is required and will be passed directly
+                    to logging.Logger, one string is recommended.
+    @param level:   Log level, default "NOTSET".
+    @param output:  Log output mode, stream or file, default "stream",
+                    optional values are ["stream", "file", "stream,file"].
+    @param logfmt:  Passed to logging.Formatter, default "[%(asctime)s] [%(module)s.
+                    %(funcName)s.line%(lineno)d] [%(levelname)s] %(message)s"
+    @param datefmt: Passed to logging.Formatter, default "%F %T"
+    @param logfile: Default is "/var/log/{your startup filename}.log",
+                    if "file" in output.
+    @param gname:   Create a pointer to the logging.Logger instance
+                    in the gqylpy_log module, if not None.
 
-    @param params:
-        Initialization parameters of logging.Logger, sample:
-            level='NOTSET',
-            output='stream,file',
-            handler='/var/log/gqylpy.log',
-            datefmt='%F %T',
-            logfmt='[%(asctime)s] [%(levelname)s] %(message)s'
-
-    @return: logging.Logger(**@param(params))
+    @return: logging.Logger
     """
 
 
-def debug(msg: str, *, gname: 'logging.Logger' = None):
-    pass
-
-
-def info(msg: str, *, gname: 'logging.Logger' = None):
-    pass
-
-
-def warning(msg: str, *, gname: 'logging.Logger' = None):
-    pass
-
-
-def warn(msg: str, *, gname: 'logging.Logger' = None):
-    warnings.warn(
-        "The 'warn' function is deprecated, use 'warning' instead",
-        DeprecationWarning, 2)
-    warning(msg, gname=gname)
-
-
-def error(msg: str, *, gname: 'logging.Logger' = None):
-    pass
-
-
-def critical(msg: str, *, gname: 'logging.Logger' = None):
-    pass
-
-
-def fatal(msg: str, *, gname: 'logging.Logger' = None):
-    critical(msg, gname=gname)
+def debug    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
+def info     (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
+def warning  (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
+def error    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
+def exception(msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): error(msg, gname=gname)
+def critical (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
+def fatal    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): critical(msg, gname=gname)
 
 
 class _______歌________琪________怡_______玲_______萍_______云_______:
@@ -104,4 +101,4 @@ class _______歌________琪________怡_______玲_______萍_______云_______:
 
 
 import logging
-import warnings
+from typing import Union
