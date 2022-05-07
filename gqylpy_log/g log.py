@@ -136,17 +136,17 @@ def __call__(func):
 
 
 @__call__
-def debug(*a, **kw):
+def debug():
     pass
 
 
 @__call__
-def info(*a, **kw):
+def info():
     pass
 
 
 @__call__
-def warning(*a, **kw):
+def warning():
     pass
 
 
@@ -154,12 +154,12 @@ exception = warning
 
 
 @__call__
-def error(*a, **kw):
+def error():
     pass
 
 
 @__call__
-def critical(*a, **kw):
+def critical():
     pass
 
 
