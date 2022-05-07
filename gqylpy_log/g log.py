@@ -49,8 +49,9 @@ def __init__(
         gname: str = None
 ) -> logging.Logger:
     if output not in ("stream", "file", "stream,file", "file,stream"):
-        raise type('ParameterError', (TypeError,), {'__module__': __package__})(
-            'Parameter "output" optional values are ["stream", "file", "stream,file"].'
+        raise type('ParameterError', (TypeError,), {})(
+            'Parameter "output" optional values '
+            'are ["stream", "file", "stream,file"].'
         )
 
     logger = logging.Logger(name, level)
@@ -74,72 +75,92 @@ def __init__(
         logger.addHandler(handler)
 
     if gname:
-        if not hasattr(gcode, '__first__') or gcode.__first__.name == 'built-in':
+        if not hasattr(gcode, '__first__') or \
+                gcode.__first__.name == 'built-in':
             gcode.__first__ = logger
         setattr(gpack, gname, logger)
 
     return logger
 
 
-def __call__(method: str, msg: str, *, gname: (str, logging.Logger) = None, **kw):
-    if gname is None:
-        if not hasattr(gcode, '__first__'):
-            gobj: logging.Logger = __init__(
-                name='built-in',
-                level=gpack.level,
-                output=gpack.output,
-                logfmt=gpack.logfmt,
-                datefmt=gpack.datefmt,
-                **({'logfile': gpack.logfile} if gpack.logfile !=
-                    '/var/log/{default is your startup filename}.log' else {}),
-                gname='built-in'
-            )
-            setattr(gcode, '__first__', gobj)
-        gobj: logging.Logger = __first__
-    elif gname.__class__ is str:
-        gobj: logging.Logger = getattr(gpack, gname, None)
-        if gobj.__class__ is not logging.Logger:
-            raise NameError(f'gname "{gname}" not found in {gpack.__name__}.')
-    elif gname.__class__ is logging.Logger:
-        gobj: logging.Logger = gname
-    else:
-        x: str = gname.__class__.__name__
-        raise TypeError(
-            f'Parameter "gname" type must be a str '
-            f'or logging.Logger instance. not "{x}".'
-        )
-
-    if 'stacklevel' in kw:
-        if kw['stacklevel'].__class__ is not int:
-            if not kw['stacklevel'].isdigit():
-                x: str = kw['stacklevel'].__class__.__name__
-                raise TypeError(
-                    f'Parameter "stacklevel" type must be a "int", not "{x}".'
+def __call__(func):
+    def inner(
+            msg: str,
+            *,
+            gname: (str, logging.Logger) = None,
+            **kw
+    ):
+        if gname is None:
+            if not hasattr(gcode, '__first__'):
+                gobj: logging.Logger = __init__(
+                    name='built-in',
+                    level=gpack.level,
+                    output=gpack.output,
+                    logfmt=gpack.logfmt,
+                    datefmt=gpack.datefmt,
+                    **({'logfile': gpack.logfile} if gpack.logfile !=
+                        '/var/log/{default is your startup filename}.log' else {}),
+                    gname='built-in'
                 )
-            kw['stacklevel'] = int(kw['stacklevel'])
-        if kw['stacklevel'] < 3:
-            kw['stacklevel'] = 3
-    else:
-        kw['stacklevel'] = 3
+                setattr(gcode, '__first__', gobj)
+            gobj: logging.Logger = __first__
+        elif gname.__class__ is str:
+            gobj: logging.Logger = getattr(gpack, gname, None)
+            if gobj.__class__ is not logging.Logger:
+                raise NameError(f'gname "{gname}" not found in {__package__}.')
+        elif gname.__class__ is logging.Logger:
+            gobj: logging.Logger = gname
+        else:
+            x: str = gname.__class__.__name__
+            raise TypeError(
+                f'Parameter "gname" type must be a str '
+                f'or logging.Logger instance. not "{x}".'
+            )
 
-    getattr(gobj, method)(msg, **kw)
+        if 'stacklevel' in kw:
+            if kw['stacklevel'].__class__ is not int:
+                if not kw['stacklevel'].isdigit():
+                    x: str = kw['stacklevel'].__class__.__name__
+                    raise TypeError(
+                        f'Parameter "stacklevel" type must be a "int", not "{x}".'
+                    )
+                kw['stacklevel'] = int(kw['stacklevel'])
+            if kw['stacklevel'] < 2:
+                kw['stacklevel'] = 2
+            print(kw['stacklevel'])
+        else:
+            kw['stacklevel'] = 2
+
+        getattr(gobj, func.__name__)(msg, **kw)
+    return inner
 
 
-def debug(msg: str, *, gname: (str, logging.Logger) = None, **kw):
-    __call__('debug', msg, gname=gname, **kw)
+@__call__
+def debug(*a, **kw):
+    pass
 
 
-def info(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
-    __call__('info', msg, gname=gobj, **kw)
+@__call__
+def info(*a, **kw):
+    pass
 
 
-def warning(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
-    __call__('warning', msg, gname=gobj, **kw)
+@__call__
+def warning(*a, **kw):
+    pass
 
 
-def error(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
-    __call__('error', msg, gname=gobj, **kw)
+exception = warning
 
 
-def critical(msg: str, *, gobj: (str, logging.Logger) = None, **kw):
-    __call__('critical', msg, gname=gobj, **kw)
+@__call__
+def error(*a, **kw):
+    pass
+
+
+@__call__
+def critical(*a, **kw):
+    pass
+
+
+fatal = critical

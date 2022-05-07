@@ -27,7 +27,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-__version__ = 1, 0, 'dev1'
+__version__ = 1, 0
 __author__  = '竹永康 <gqylpy@outlook.com>'
 __source__  = 'https://github.com/gqylpy/gqylpy-log'
 
@@ -40,12 +40,12 @@ ERROR    = 'ERROR'
 CRITICAL = 'CRITICAL'
 FATAL    = 'FATAL'
 
-level:   str = NOTSET
-output:  str = 'stream'
-logfile: str = '/var/log/{default is your startup filename}.log'
-datefmt: str = '%F %T'
-logfmt:  str = '[%(asctime)s] [%(module)s.%(funcName)s.' \
-               'line%(lineno)d] [%(levelname)s] %(message)s'
+level   = NOTSET
+output  = 'stream'
+logfile = '/var/log/{default is your startup filename}.log'
+datefmt = '%F %T'
+logfmt  = '[%(asctime)s] [%(module)s.%(funcName)s.' \
+          'line%(lineno)d] [%(levelname)s] %(message)s'
 
 
 def __init__(
@@ -81,9 +81,9 @@ def debug    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ..
 def info     (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
 def warning  (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
 def error    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
-def exception(msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): error(msg, gname=gname)
+def exception(msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
 def critical (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
-def fatal    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): critical(msg, gname=gname)
+def fatal    (msg: str, *, gname: 'Union[str, logging.Logger]' = None, **kw): ...
 
 
 class _______歌________琪________怡_______玲_______萍_______云_______:
@@ -95,7 +95,9 @@ class _______歌________琪________怡_______玲_______萍_______云_______:
 
     for gname in globals():
         if gname[0] != '_' and hasattr(gcode, gname):
-            setattr(gpack, gname, getattr(gcode, gname))
+            gfunc = getattr(gcode, gname)
+            gfunc.__module__ = __package__
+            setattr(gpack, gname, gfunc)
 
     setattr(gpack, '__init__', gcode.__init__)
 
