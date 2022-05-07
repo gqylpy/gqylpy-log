@@ -132,35 +132,19 @@ def __call__(func):
             kw['stacklevel'] = 2
 
         getattr(gobj, func.__name__)(msg, **kw)
+
     return inner
 
 
 @__call__
-def debug():
-    pass
-
-
+def debug(): ...
 @__call__
-def info():
-    pass
-
-
+def info(): ...
 @__call__
-def warning():
-    pass
-
-
+def warning(): ...
 exception = warning
-
-
 @__call__
-def error():
-    pass
-
-
+def error(): ...
 @__call__
-def critical():
-    pass
-
-
+def critical(): ...
 fatal = critical
