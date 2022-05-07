@@ -30,8 +30,7 @@ logfmt  = '[%(asctime)s] [%(module)s.%(funcName)s.line%(lineno)d] [%(levelname)s
 ```
 当然可以修改它：
 ```python
-glog.logfmt  = '[%(asctime)s] [%(levelname)s] %(message)s'
-glog.info(...)
+glog.level  = 'INFO'
 ```
 不过需要注意的是，你只有在第一次调用前修改内置的日志记录器配置才会生效，因为在你第一次调用时默认的日志记录器就已经被创建！
 
