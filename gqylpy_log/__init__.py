@@ -27,7 +27,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-__version__ = 1, 0, 1, 'dev2'
+__version__ = 1, 0, 1, 'dev3'
 __author__  = '竹永康 <gqylpy@outlook.com>'
 __source__  = 'https://github.com/gqylpy/gqylpy-log'
 
@@ -72,8 +72,6 @@ def __init__(
                     if "file" in output.
     @param gname:   Create a pointer to the logging.Logger instance
                     in the gqylpy_log module, if not None.
-
-    @return: logging.Logger
     """
 
 
