@@ -50,9 +50,9 @@ glog.__init__(
 
 glog.info(...)
 ```
-或者你希望直接得到日志记录器实例，而不是始终通过 `gqylpy_log` 模块调用它：
+或者你希望直接得到 `logging.Logger` 实例，而不是始终通过 `gqylpy_log` 模块调用它：
 ```python
-log: 'logging.Logger' = glog.__init__(
+logger: 'logging.Logger' = glog.__init__(
     'beta',
     level='INFO',
     output='stream,file',
@@ -61,5 +61,5 @@ log: 'logging.Logger' = glog.__init__(
     logfile='/var/log/beta.log',
 )
 
-log.info(...)
+logger.info(...)
 ```
