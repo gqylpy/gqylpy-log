@@ -127,7 +127,6 @@ def __call__(func):
                 kw['stacklevel'] = int(kw['stacklevel'])
             if kw['stacklevel'] < 2:
                 kw['stacklevel'] = 2
-            print(kw['stacklevel'])
         else:
             kw['stacklevel'] = 2
 
