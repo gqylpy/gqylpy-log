@@ -20,7 +20,7 @@ glog.warning(...)
 glog.error(...)
 glog.critical(...)
 ```
-想上面这样直接调用，使用的便是内置的日志记录器，它的配置信息是这样的：
+像上面这样直接调用，使用的便是内置的日志记录器，它的配置信息是这样的：
 ```python
 level   = 'NOTSET'
 output  = 'stream'
