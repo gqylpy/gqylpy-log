@@ -1,12 +1,13 @@
 [<img alt="LOGO" src="http://www.gqylpy.com/static/img/favicon.ico" height="21" width="21"/>](http://www.gqylpy.com)
-[![Version](https://img.shields.io/pypi/v/gqylpy_log)](https://pypi.org/project/gqylpy_log/)
+[![Release](https://img.shields.io/github/release/gqylpy/gqylpy-log.svg?style=flat-square")](https://github.com/gqylpy/gqylpy-log/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gqylpy_log)](https://pypi.org/project/gqylpy_log)
 [![License](https://img.shields.io/pypi/l/gqylpy_log)](https://github.com/gqylpy/gqylpy-log/blob/master/LICENSE)
 [![Downloads](https://pepy.tech/badge/gqylpy_log/month)](https://pepy.tech/project/gqylpy_log)
 
 # gqylpy-log
 
-> 二次封装 `logging`，更方便快捷的创建日志记录器。使用 `gqylpy_log` 模块可以快速创建 `logging.Logger` 实例并完成一系列的日志配置，使你的代码更简洁。同时 `gqylpy_log` 中还内置了一个基于 `logging.StreamHandler` 的日志记录器，你可以直接调用它。~~它是在你第一次调用时自动创建的，前提是你未创建任何指定了参数 `gname` 的日志记录器，否则会使用你第一次创建的指定了参数 `ganme` 的日志记录器作为默认日志记录器，并自动替换和销毁掉内置的日志记录器。~~
+> 二次封装 `logging`，更方便快捷的创建日志记录器。使用 `gqylpy_log` 模块可以快速创建 `logging.Logger` 实例并完成一系列的日志配置，使你的代码更简洁。  
+> > 另外 `gqylpy_log` 中还内置了一个基于 `logging.StreamHandler` 的日志记录器，你可以直接调用它，它是在你第一次调用时自动创建的，前提是你未创建任何指定了参数 `gname` 的日志记录器，否则会使用你第一次创建的指定了参数 `ganme` 的日志记录器作为默认日志记录器，并自动替换和销毁掉内置的日志记录器。
 
 <kbd>pip3 install gqylpy_log</kbd>
 
@@ -40,26 +41,18 @@ import gqylpy_log as glog
 
 glog.__init__(
     'alpha',
-    level='INFO',
-    output='stream,file',
-    logfmt='[%(asctime)s] [%(levelname)s] %(message)s',
+    level  ='INFO',
+    output ='stream,file',
+    logfmt ='[%(asctime)s] [%(levelname)s] %(message)s',
     datefmt='%F %T',
     logfile='/var/log/alpha.log',
-    gname='alpha'
+    gname  ='alpha'
 )
 
 glog.info(...)
 ```
-或者你希望直接得到 `logging.Logger` 实例，而不是始终通过 `gqylpy_log` 模块调用它：
+或者你希望直接得到日志记录器实例，而不是始终通过 `gqylpy_log` 模块调用它：
 ```python
-logger: 'logging.Logger' = glog.__init__(
-    'beta',
-    level='INFO',
-    output='stream,file',
-    logfmt='[%(asctime)s] [%(levelname)s] %(message)s',
-    datefmt='%F %T',
-    logfile='/var/log/beta.log',
-)
-
-logger.info(...)
+log: logging.Logger = glog.__init__('beta', ...)
+log.info(...)
 ```

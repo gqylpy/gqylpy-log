@@ -1,18 +1,4 @@
 """
-─────────────────────────────────────────────────────────────────────────────────────────────────────
-─██████████████─██████████████───████████──████████─██████─────────██████████████─████████──████████─
-─██░░░░░░░░░░██─██░░░░░░░░░░██───██░░░░██──██░░░░██─██░░██─────────██░░░░░░░░░░██─██░░░░██──██░░░░██─
-─██░░██████████─██░░██████░░██───████░░██──██░░████─██░░██─────────██░░██████░░██─████░░██──██░░████─
-─██░░██─────────██░░██──██░░██─────██░░░░██░░░░██───██░░██─────────██░░██──██░░██───██░░░░██░░░░██───
-─██░░██─────────██░░██──██░░██─────████░░░░░░████───██░░██─────────██░░██████░░██───████░░░░░░████───
-─██░░██──██████─██░░██──██░░██───────████░░████─────██░░██─────────██░░░░░░░░░░██─────████░░████─────
-─██░░██──██░░██─██░░██──██░░██─────────██░░██───────██░░██─────────██░░██████████───────██░░██───────
-─██░░██──██░░██─██░░██──██░░██─────────██░░██───────██░░██─────────██░░██───────────────██░░██───────
-─██░░██████░░██─██░░██████░░████───────██░░██───────██░░██████████─██░░██───────────────██░░██───────
-─██░░░░░░░░░░██─██░░░░░░░░░░░░██───────██░░██───────██░░░░░░░░░░██─██░░██───────────────██░░██───────
-─██████████████─████████████████───────██████───────██████████████─██████───────────────██████───────
-─────────────────────────────────────────────────────────────────────────────────────────────────────
-
 Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,18 +24,18 @@ gcode = sys.modules[__name__]
 
 
 def __init__(
-        name: str,
+        name:    str,
         *,
-        level: str = 'NOTSET',
-        output: str = 'stream',
-        logfmt: str = '[%(asctime)s] [%(module)s.%(funcName)s.'
-                      'line%(lineno)d] [%(levelname)s] %(message)s',
+        level:   str = 'NOTSET',
+        output:  str = 'stream',
+        logfmt:  str = '[%(asctime)s] [%(module)s.%(funcName)s.line%(lineno)d] '
+                       '[%(levelname)s] %(message)s',
         datefmt: str = '%F %T',
         logfile: str = None,
-        gname: str = None
+        gname:   str = None
 ) -> logging.Logger:
     if output not in ("stream", "file", "stream,file", "file,stream"):
-        raise type('ParameterError', (TypeError,), {})(
+        raise type('parameterError', (TypeError,), {})(
             'Parameter "output" optional values '
             'are ["stream", "file", "stream,file"].'
         )
@@ -99,7 +85,8 @@ def __call__(func):
                     logfmt=gpack.logfmt,
                     datefmt=gpack.datefmt,
                     **({'logfile': gpack.logfile} if gpack.logfile !=
-                        '/var/log/{default is your startup filename}.log' else {}),
+                        '/var/log/{default is your startup filename}.log'
+                       else {}),
                     gname='built-in'
                 )
                 setattr(gcode, '__first__', gobj)
@@ -113,8 +100,8 @@ def __call__(func):
         else:
             x: str = gname.__class__.__name__
             raise TypeError(
-                f'Parameter "gname" type must be a str '
-                f'or logging.Logger instance. not "{x}".'
+                'parameter "gname" type must be a "str" or "logging.Logger", '
+                f'not "{x}".'
             )
 
         if 'stacklevel' in kw:
@@ -122,7 +109,8 @@ def __call__(func):
                 if not kw['stacklevel'].isdigit():
                     x: str = kw['stacklevel'].__class__.__name__
                     raise TypeError(
-                        f'Parameter "stacklevel" type must be a "int", not "{x}".'
+                        'Parameter "stacklevel" type must be a "int", '
+                        f'not "{x}".'
                     )
                 kw['stacklevel'] = int(kw['stacklevel'])
             if kw['stacklevel'] < 2:
