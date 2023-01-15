@@ -9,9 +9,6 @@ with open(g.__file__, encoding='utf8') as f:
     author, email = f.readline().split(maxsplit=1)[-1].rstrip().split()
     source = f.readline().split()[-1]
 
-with open('README.md', encoding='utf8') as f:
-    long_description = f.read()
-
 setuptools.setup(
     name=g.__name__,
     version=version,
@@ -22,7 +19,7 @@ setuptools.setup(
     project_urls={'Source': source},
     description='二次封装 logging，更方便快捷的创建日志记录器。使用 gqylpy_log 模块可以快'
                 '速创建 logging.Logger 实例并完成一系列的日志配置，使你的代码更简洁。',
-    long_description=long_description,
+    long_description=open('README.md', encoding='utf8').read(),
     long_description_content_type='text/markdown',
     packages=[g.__name__],
     python_requires='>=3.6, <4',

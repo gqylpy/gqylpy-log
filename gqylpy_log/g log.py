@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022 GQYLPY <http://gqylpy.com>. All rights reserved.
+Copyright (c) 2022, 2023 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ def __init__(
         gname:   str = None
 ) -> logging.Logger:
     if output not in ("stream", "file", "stream,file", "file,stream"):
-        raise type('parameterError', (TypeError,), {})(
-            'Parameter "output" optional values '
-            'are ["stream", "file", "stream,file"].'
+        raise type('ParameterError', (TypeError,), {'__module__': 'builtins'})(
+            'parameter "output" can only be "stream", "file", or '
+            f'"file,stream", not "{output}"'
         )
 
     logger = logging.Logger(name, level)
@@ -70,12 +70,7 @@ def __init__(
 
 
 def __call__(func):
-    def inner(
-            msg: str,
-            *,
-            gname: (str, logging.Logger) = None,
-            **kw
-    ):
+    def inner(msg, *, gname: (str, logging.Logger) = None, **kw):
         if gname is None:
             if not hasattr(gcode, '__first__'):
                 gobj: logging.Logger = __init__(
