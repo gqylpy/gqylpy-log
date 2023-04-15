@@ -6,7 +6,7 @@ complete a series of log configuration, make your code cleaner.
     >>> import gqylpy_log as glog
     >>> glog.info(...)
 
-    @version: 1.0.3
+    @version: 1.0.4
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-log
 
@@ -26,7 +26,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import logging
-from typing import Literal, Union, Any
+from typing import Optional, Union, Any
+
+try:
+    from typing import Literal
+except ImportError:
+    Literal = Union
 
 NOTSET   = 'NOTSET'
 DEBUG    = 'DEBUG'
@@ -44,16 +49,18 @@ datefmt = '%F %T'
 logfmt  = '[%(asctime)s] [%(module)s.%(funcName)s.line%(lineno)d] ' \
           '[%(levelname)s] %(message)s'
 
+OutputMode = Literal['stream', 'file', 'stream,file']
+
 
 def __init__(
-        name:    str,
+        name:    Optional[str],
         *,
-        level:   str                                      = None,
-        output:  Literal['stream', 'file', 'stream,file'] = None,
-        logfmt:  str                                      = None,
-        datefmt: str                                      = None,
-        logfile: str                                      = None,
-        gname:   str                                      = None
+        level:   Optional[str]        = None,
+        output:  Optional[OutputMode] = None,
+        logfmt:  Optional[str]        = None,
+        datefmt: Optional[str]        = None,
+        logfile: Optional[str]        = None,
+        gname:   Optional[str]        = None
 ) -> logging.Logger:
     """Get a `logging.Logger` instance.
 
@@ -83,56 +90,6 @@ def fatal    (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
 
 
 class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
-    """  QYYYQLLYYYYYYYQLYYQYYQQQYQQYQQQQQQQQQQQQQQQQQQQQQQYYYQQQQQQYL
-        YYYYQYLLQYLLYYQYYYYYYYQQYQYQYQQQQQQQQQQQQQQQQQQQQQQQYYYQQQQQQ
-        QYYYYLPQYLPLYYYLLYYYYYYYYQQQYQQQQQQQQQQQQQQQQQQQQQQQYYYYQQQQQP
-        QYYQLPLQYLLYYQPLLLYYYYYYQYYQYQQQQQQQQQQQQQQYQQQQQQQQYYQYQQQQQQP
-       QYYQYLLYYYLLYQYLLYYYYYYYYQYYQYQYYYQQQQQQQQQQYQQQQQQYQQYQYYQQQQQYP
-      LQYQYYYYQYYYYYQYYYYYYYYYYYYYYYQQYYYYYYYYYQQQQYQQQQQQYQQYQYYQQQQQQ P
-      QYQQYYYYQYYYQQQYYYYYYYYQYQYYYYQQYYYQYQYYQQQQYQQQQQQQYQQYQYYQQQQQQ P
-      QYQQYYYYQYYYQQQYYYYYYYYQYQYYYYYQYYYYQYYYQQQQYQQQQQQQYQQYQQYQQQQYYP
-      QYQYYYYYQYYYQQQ PYLLLYP PLYYYYYYQYYYYYYQQQQYYQQQQQQYQQYQQQYQQQQYQ
-      PQQYYYYYQYYQQYQQQQQQQQQQYP        PPLYQYQYQYQLQQQQQYQQYQQQYYQQQYY
-       QQYYYYYQQYQLYQQPQQQQQL QYL           PPYYLYYLQYQQYYQYQQQQYYQPQYL
-       YQYYYYQQQYQ  LYLQQQQQQYQQ           YQQQQQGQQQQQQYQYYQQQQYQPQYQ P
-      L QYYYYQQLYQ   Y YPYQQQQQ           LQQQQQL YQQQQYQQYQYQQYYQQYQP P
-        YYQYYQQ  Q    LQQQQQQY            YQYQQQQQQYYQYLQYQQYQQYYQYQL P
-     Y  LYQLQQPL Y     P  P                QLLQQQQQ Q  PQQQQYQQYYQQL P
-    P   PYQYQQQQPQ                         PQQQQQQY    QQYQYYQQYYQPP
-    L    QQQYQ YYYY              PQ           L  P    LPQYQYYQQLQ P
-    Y   PPQQYYL LYQL                                 PQLQYQQYQYQ  L
-    Y     QQYQPP PYQY        PQ                      Q  QQYQYQYL  L
-    Y     QQYYQ L  QYQP         PLLLLLYL           LQQ LQYYQQQP P L
-     L   PPLQYYQ Y  LQQQ                         LQYQ  QYYYQQ     P
-      L    Q  QYQ  Y  QQPYL                   PQYYYYPPQYYQQQP    L
-       L    L  PQQL   LYQ  PQP             QL PYYYPLQLYQ  QY P   Y
-         P   P    PQQP  QY  QLLQQP   LYYLQ   PQYPQQQP P  QY P   L
-                       PYQYYY           PQ  PQ      L   Q P    L
-              PQYLYYYPQ PLPL             L QY YQYYQYLYQQQ    P
-            PYLLLLLYYYQ P  L    P         PYL  PQYYLLLLLLLQ
-           LYPLLLLLLYYYY   Y  YQY     LLLPPY   LYYYLLLLLLLLY
-           YLLLYLLLLLLYYQ  Q              PQ  YYYLLLLLLLLLLYP
-          YLLLLLLLLLLLLLLYQQ              PYYQYYLLLLLLLLYYYLQ
-          QLLLLLLLLLLLLLLLLLYYQYP        YQYYLLLLLLLLLLLLLLLQ
-          YLLLLLLLLLLLLLLLLLLLYYYLLYYYLLLLLLLLLLLLLLLLLLLLLLYP
-         PLLLLLLLLLLLLLLLLLLLLLLLYLLLLLLLLLLLLLLLLLLLLLLLYLYLL
-         LLLLLLLLLLYYLLLLLLYLLLLLLLLLLLLLLLL GQYLPY LLLYLYLLLY
-         QLLLLYYLYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQYYYYLLQ
-         QLLLLLYYQYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQLYYLLLQ
-        LYLLYLLLQYYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLYLLLLLQYYYYYLYQ
-        YLLLYYLLYQYLLLLLLLLLLLLLLLLLLLLLLLLLLLLYLLLLLYYYYQLLLLY
-        QLLLYYYYYQLLLLLLLLLLLLLLYLLLLLLLLLLLLLLLLLLLLYYYLQLLPLLQ
-        YLYLLQYYYQLLLLLLLLLLLLLLLLLLLLLLLLLLLLYYLLLLLYYQYYLLLLLQ
-       LYLLLLLYYYQLLYLLLLLLLLLLLLYLYLLYYLLLLYLLLLLLLYYYQQLLLLLLLY
-       YLLLLLLYYYQLLYLLLLLLLYLYLLLLLLLLLLLLLLLLLLLLYYYYQQLYLLLLLQ
-       QLLLYLLLQYQLQLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLYYYQYYLLLLLLLY
-       QLLLLLLLLQQYQLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQYYQYYLLLLLLLQ
-       QLLLLLLLLLQQYLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLYYYYLLLLLLLLLYL
-       QLLLLYLYYLYQLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLQYYYLLLLLLLLLQ
-       YLLLLLLLYYLQLLLLLLLLLLLLLLLLLLLLLLLLLYLLLLLLLLYQYYLLLLLLLLLQ
-       QLLLLLYLYYYYLLLLLPLLLLLLLYLYLLLLLLLLLLLLLLLLLLLQYYLLLLLLLLYP
-       YYLYYLLYYYQLLLLLLLLYLLLLLLLLLLLLLLLLLLLLLLYLYLLYQYYLLLLLLYL
-        QLLLLLLYQYLLLLLLLLLLLLLLLLLLLLLYYLYLLLLLLLLLLLYQQQQQQQLYL  """
     import sys
 
     gpath = f'{__name__}.g {__name__[7:]}'
@@ -142,14 +99,12 @@ class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
     gcode = globals()[f'g {__name__[7:]}']
 
     for gname in globals():
-        if gname[0] != '_':
-            try:
-                gfunc = getattr(gcode, gname)
-                if gfunc.__module__ is gpath:
-                    gfunc.__module__ = __package__
-                    gfunc.__doc__ = getattr(gpack, gname).__doc__
-                    setattr(gpack, gname, gfunc)
-            except AttributeError:
-                pass
-
-    setattr(gpack, '__init__', gcode.__init__)
+        try:
+            assert gname[0] != '_' or gname == '__init__'
+            gfunc = getattr(gcode, gname)
+            assert gfunc.__module__ in (gpath, __package__)
+        except (AssertionError, AttributeError):
+            continue
+        gfunc.__module__ = __package__
+        gfunc.__doc__ = getattr(gpack, gname).__doc__
+        setattr(gpack, gname, gfunc)

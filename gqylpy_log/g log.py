@@ -34,13 +34,14 @@ def __init__(
         logfile: str = None,
         gname:   str = None
 ) -> logging.Logger:
-    if output not in ("stream", "file", "stream,file", "file,stream"):
+    if output.replace(' ', '') not in \
+            ("stream", "file", "stream,file", "file,stream"):
         raise type('ParameterError', (TypeError,), {'__module__': 'builtins'})(
             'parameter "output" can only be "stream", "file", or '
             f'"file,stream", not "{output}"'
         )
 
-    logger = logging.Logger(name, level)
+    logger    = logging.Logger(name, level)
     formatter = logging.Formatter(logfmt, datefmt)
 
     if 'stream' in output:
@@ -93,25 +94,27 @@ def __call__(func):
         elif gname.__class__ is logging.Logger:
             gobj: logging.Logger = gname
         else:
-            x: str = gname.__class__.__name__
             raise TypeError(
                 'parameter "gname" type must be a "str" or "logging.Logger", '
-                f'not "{x}".'
+                f'not "{gname.__class__.__name__}".'
             )
 
-        if 'stacklevel' in kw:
-            if kw['stacklevel'].__class__ is not int:
-                if not kw['stacklevel'].isdigit():
-                    x: str = kw['stacklevel'].__class__.__name__
-                    raise TypeError(
-                        'Parameter "stacklevel" type must be a "int", '
-                        f'not "{x}".'
-                    )
-                kw['stacklevel'] = int(kw['stacklevel'])
-            if kw['stacklevel'] < 2:
+        if sys.version_info >= (3, 8):
+            if 'stacklevel' in kw:
+                if kw['stacklevel'].__class__ is not int:
+                    if not kw['stacklevel'].isdigit():
+                        raise TypeError(
+                            'Parameter "stacklevel" type must be a "int", '
+                            f'not "{kw["stacklevel"].__class__.__name__}".'
+                        )
+                    kw['stacklevel'] = int(kw['stacklevel'])
+                if kw['stacklevel'] < 2:
+                    kw['stacklevel'] = 2
+            else:
                 kw['stacklevel'] = 2
-        else:
-            kw['stacklevel'] = 2
+
+        if msg.__class__ is str:
+            msg = msg.strip()
 
         getattr(gobj, func.__name__)(msg, **kw)
 
@@ -124,9 +127,9 @@ def debug(): ...
 def info(): ...
 @__call__
 def warning(): ...
-exception = warning
 @__call__
 def error(): ...
+exception = error
 @__call__
 def critical(): ...
 fatal = critical
