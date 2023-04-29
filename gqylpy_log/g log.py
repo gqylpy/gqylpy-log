@@ -36,7 +36,7 @@ def __init__(
 ) -> logging.Logger:
     if output.replace(' ', '') not in \
             ("stream", "file", "stream,file", "file,stream"):
-        raise type('ParameterError', (TypeError,), {'__module__': 'builtins'})(
+        raise TypeError(
             'parameter "output" can only be "stream", "file", or '
             f'"file,stream", not "{output}"'
         )
@@ -71,7 +71,14 @@ def __init__(
 
 
 def __call__(func):
-    def inner(msg, *, gname: (str, logging.Logger) = None, **kw):
+    def inner(
+            *msg,
+            sep:     str  = ' ',
+            oneline: bool = False,
+            linesep: str  = '; ',
+            gname:   (str, logging.Logger) = None,
+            **kw
+    ):
         if gname is None:
             if not hasattr(gcode, '__first__'):
                 gobj: logging.Logger = __init__(
@@ -95,7 +102,7 @@ def __call__(func):
             gobj: logging.Logger = gname
         else:
             raise TypeError(
-                'parameter "gname" type must be a "str" or "logging.Logger", '
+                'parameter "gname" type must be "str" or "logging.Logger", '
                 f'not "{gname.__class__.__name__}".'
             )
 
@@ -104,7 +111,7 @@ def __call__(func):
                 if kw['stacklevel'].__class__ is not int:
                     if not kw['stacklevel'].isdigit():
                         raise TypeError(
-                            'Parameter "stacklevel" type must be a "int", '
+                            'parameter "stacklevel" type must be "int", '
                             f'not "{kw["stacklevel"].__class__.__name__}".'
                         )
                     kw['stacklevel'] = int(kw['stacklevel'])
@@ -113,8 +120,12 @@ def __call__(func):
             else:
                 kw['stacklevel'] = 2
 
-        if msg.__class__ is str:
-            msg = msg.strip()
+        msg: str = sep.join(str(m) for m in msg)
+
+        if oneline:
+            msg: str = linesep.join(
+                m.strip() for m in msg.split('\n') if m and not m.isspace()
+            )
 
         getattr(gobj, func.__name__)(msg, **kw)
 

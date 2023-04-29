@@ -6,7 +6,7 @@ complete a series of log configuration, make your code cleaner.
     >>> import gqylpy_log as glog
     >>> glog.info(...)
 
-    @version: 1.0.4
+    @version: 1.1
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-log
 
@@ -26,12 +26,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import logging
-from typing import Optional, Union, Any
 
+from typing import TypeVar, Optional, Union, Any
 try:
     from typing import Literal
 except ImportError:
     Literal = Union
+
+Logger = TypeVar('Logger', str, logging.Logger)
 
 NOTSET   = 'NOTSET'
 DEBUG    = 'DEBUG'
@@ -66,39 +68,192 @@ def __init__(
 
     @param name:    The name is required and will be passed directly to
                     `logging.Logger`, one string is recommended.
-    @param level:   Log level, default "NOTSET".
-    @param output:  Log output mode, stream and/or file, default "stream".
-    @param logfmt:  Passed to `logging.Formatter`, default "[%(asctime)s]
+    @param level:   Log level, default is "NOTSET".
+    @param output:  Log output mode, stream and/or file, default is "stream".
+    @param logfmt:  Passed to `logging.Formatter`, default is "[%(asctime)s]
                     [%(module)s.%(funcName)s.line%(lineno)d] [%(levelname)s]
                     %(message)s".
-    @param datefmt: Passed to `logging.Formatter`, default "%F %T"
+    @param datefmt: Passed to `logging.Formatter`, default is "%F %T"
     @param logfile: Default is "/var/log/{your startup filename}.log", if the
                     parameter `output` is "file" or "stream,file", otherwise
                     ignore.
     @param gname:   Create a pointer to the `logging.Logger` instance in the
-                    gqylpy_log module, if not None.
+                    `gqylpy_log` module, if not None.
     """
 
 
-def debug    (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
-def info     (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
-def warning  (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
-def error    (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
-def exception(msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
-def critical (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
-def fatal    (msg: Any, *, gname: Union[str, logging.Logger] = None, **kw): ...
+def __getattr__(gname: str) -> logging.Logger:
+    """Get the `logging.Logger` instance by `gname`, the `gname` is the
+    parameter `gname` passed in `__init__`."""
+
+
+def debug(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `debug`
+                    method of the `logging.Logger` instance.
+    """
+
+
+def info(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `info` method
+                    of the `logging.Logger` instance.
+    """
+
+
+def warning(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `warning`
+                    method of the `logging.Logger` instance.
+    """
+
+
+def error(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `error`
+                    method of the `logging.Logger` instance.
+    """
+
+
+def exception(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `error`
+                    method of the `logging.Logger` instance.
+    """
+
+
+def critical(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `critical`
+                    method of the `logging.Logger` instance.
+    """
+
+
+def fatal(
+        *msg:    Any,
+        sep:     Optional[str]    = None,
+        oneline: Optional[bool]   = None,
+        linesep: Optional[str]    = None,
+        gname:   Optional[Logger] = None,
+        **kw
+) -> None:
+    """
+    @param msg:     The log message.
+    @param sep:     A string inserted between log message, default a space.
+    @param oneline: Make the log message always one line, default is False. If
+                    the log message is multi-line, replace the line break with
+                    `linesep`.
+    @param linesep: A string that replaces the line break, default is "; ". Used
+                    with parameter `oneline`.
+    @param gname:   An instance of `logging.Logger`, or a pointer name to an
+                    instance of `logging.Logger`.
+    @param kw:      As a keyword parameter, passed directly to the `critical`
+                    method of the `logging.Logger` instance.
+    """
 
 
 class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
-    import sys
-
+    gpack = globals()
     gpath = f'{__name__}.g {__name__[7:]}'
-    __import__(gpath)
+    gcode = __import__(gpath, fromlist=...)
 
-    gpack = sys.modules[__name__]
-    gcode = globals()[f'g {__name__[7:]}']
-
-    for gname in globals():
+    for gname in gpack:
         try:
             assert gname[0] != '_' or gname == '__init__'
             gfunc = getattr(gcode, gname)
@@ -106,5 +261,5 @@ class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
         except (AssertionError, AttributeError):
             continue
         gfunc.__module__ = __package__
-        gfunc.__doc__ = getattr(gpack, gname).__doc__
-        setattr(gpack, gname, gfunc)
+        gfunc.__doc__ = gpack[gname].__doc__
+        gpack[gname] = gfunc

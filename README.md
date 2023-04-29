@@ -2,7 +2,7 @@
 [![Release](https://img.shields.io/github/release/gqylpy/gqylpy-log.svg?style=flat-square")](https://github.com/gqylpy/gqylpy-log/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/gqylpy_log)](https://pypi.org/project/gqylpy_log)
 [![License](https://img.shields.io/pypi/l/gqylpy_log)](https://github.com/gqylpy/gqylpy-log/blob/master/LICENSE)
-[![Downloads](https://pepy.tech/badge/gqylpy_log/month)](https://pepy.tech/project/gqylpy_log)
+[![Downloads](https://pepy.tech/badge/gqylpy_log)](https://pepy.tech/project/gqylpy_log)
 
 # gqylpy-log
 
@@ -21,7 +21,7 @@ glog.warning(...)
 glog.error(...)
 glog.critical(...)
 ```
-像上面这样直接调用，使用的便是内置的日志记录器，它的配置信息是这样的：
+像上面这样直接调用，使用的便是内置的日志记录器，它的默认配置是这样的：
 ```python
 level   = 'NOTSET'
 output  = 'stream'
