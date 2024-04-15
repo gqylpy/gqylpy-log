@@ -5,15 +5,15 @@
 [![Downloads](https://pepy.tech/badge/gqylpy_log)](https://pepy.tech/project/gqylpy_log)
 
 # gqylpy-log
-English | [中文](https://github.com/gqylpy/gqylpy-log/blob/master/README_CN.md)
+[English](README.md) | 中文
 
-> `gqylpy-log` is a secondary encapsulation of `logging` that allows for more convenient and quick creation of loggers. Using the `gqylpy_log` module, you can rapidly create `logging.Logger` instances and complete a series of logging configurations, making your code cleaner.
+> 二次封装 `logging`，更方便快捷的创建日志记录器。使用 `gqylpy_log` 模块可以快速创建 `logging.Logger` 实例并完成一系列的日志配置，使你的代码更简洁。  
 
 <kbd>pip3 install gqylpy_log</kbd>
 
-### Using the Built-in Logger
+### 使用内置的日志记录器
 
-`gqylpy_log` comes with a built-in logger based on `logging.StreamHandler`. You can directly call it as follows:
+`gqylpy_log` 中内置了一个基于 `logging.StreamHandler` 的日志记录器，你可以直接调用它：
 ```python
 import gqylpy_log as glog
 
@@ -24,7 +24,7 @@ glog.error(...)
 glog.critical(...)
 ```
 
-Its default configuration is as follows:
+它的默认配置如下：
 ```python
 {
     "level": "NOTSET",
@@ -37,15 +37,15 @@ Its default configuration is as follows:
 }
 ```
 
-You can adjust the default logger configuration as needed:
+你可以根据需要调整默认的日志记录器配置：
 ```python
 glog.default["level"] = "INFO"
 ```
-However, please note that the default logger is created the first time a logging method is called. To make changes effective, you must modify the configuration before the first call.
+但要注意的是，默认的日志记录器是在第一次调用日志方式时被创建，你只有在这之前修改配置才会生效。
 
-### Creating a New Logger
+### 创建一个新的日志记录器
 
-The following example demonstrates how to obtain a logger with three handlers:
+如下示例，将得到一个拥有三个处理程序的日志记录器：
 ```python
 import gqylpy_log as glog
 
@@ -78,8 +78,8 @@ log: logging.Logger = glog.__init__(
 log.info(...)
 ```
 
-Alternatively, if you prefer to always call it through the `gqylpy_log` module, specify the `gname` parameter:
+或者你希望始终通过 `gqylpy_log` 模块调用它，指定 `gname` 参数即可：
 ```python
 glog.__init__(..., gname="alpha")
 ```
-Please note that specifying the `gname` parameter will override and permanently disable the default logger.
+指定 `gname` 参数后，默认的日志记录器将被覆盖并永久失效。

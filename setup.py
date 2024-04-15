@@ -18,12 +18,16 @@ setuptools.setup(
     license="Apache 2.0",
     url="http://gqylpy.com",
     project_urls={"Source": source},
-    description="二次封装 logging，更方便快捷的创建日志记录器。使用 gqylpy_log 模块可以"
-                "快速创建 logging.Logger 实例并完成一系列的日志配置，使你的代码更简洁。",
+    description="""
+        Secondary encapsulation `logging`, more convenient and fast to create
+        the logger. Use this module can quickly create instances of
+        `logging.Logger` and complete a series of log configuration,make your
+        code cleaner.
+    """,
     long_description=open("README.md", encoding="utf8").read(),
     long_description_content_type="text/markdown",
     packages=[g.__name__],
-    python_requires=">=3.8, <4",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -39,6 +43,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12"
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13"
     ]
 )
