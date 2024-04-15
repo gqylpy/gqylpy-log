@@ -17,62 +17,128 @@ import os
 import sys
 import logging
 
-from typing import TypeVar, Optional, Literal, Callable, Union
+from logging import handlers as logging_handlers
 
-Logger     = TypeVar("Logger", str, logging.Logger)
-Closure    = TypeVar("Closure", bound=Callable)
-OutputMode = Literal["stream", "file", "stream,file"]
+from types import ModuleType
 
-__first__: logging.Logger
+from typing import (
+    TypeVar, Type, Final, Optional, TypedDict, Union, Callable, Mapping, Dict,
+    List, Any
+)
 
-gpack = sys.modules[__package__]
-gcode = sys.modules[__name__]
+if sys.version_info >= (3, 9):
+    from typing import Annotated
+else:
+    class Annotated(metaclass=type('', (type,), {
+        '__new__': lambda *a: type.__new__(*a)()
+    })):
+        def __getitem__(self, *a): ...
+
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    TypeAlias = TypeVar("TypeAlias")
+
+Logger:  TypeAlias = TypeVar("Logger", str, logging.Logger)
+Level:   TypeAlias = TypeVar("Level", int, str)
+Closure: TypeAlias = TypeVar("Closure", bound=Callable)
+
+
+class DictFormatter(TypedDict, total=False):
+    fmt:      str
+    datefmt:  str
+    style:    str
+    validate: bool
+
+    if sys.version_info >= (3, 10):
+        defaults: Mapping[str, Any]
+
+
+class Options(TypedDict, total=False):
+    onlyRecordCurrentLevel: bool
+
+
+Formatter: TypeAlias = Union[DictFormatter, logging.Formatter]
+
+Filter: TypeAlias = Union[
+    Callable[[logging.LogRecord], bool], logging.Filter, logging.Filterer
+]
+
+Handler: TypeAlias = Union[Dict[str, Any], logging.Handler]
+
+default: Annotated[logging.Logger, "built-in default logger"]
+
+gpack: Final[ModuleType] = sys.modules[__package__]
+gcode: Final[ModuleType] = sys.modules[__name__]
+
+logging_handlers.Handler       = logging.Handler
+logging_handlers.StreamHandler = logging.StreamHandler
+logging_handlers.FileHandler   = logging.FileHandler
 
 
 def __init__(
-        name:    str,
+        name:      str,
         *,
-        level:   Union[int, str] = "NOTSET",
-        output:  OutputMode      = "stream",
-        logfmt:  Optional[str]   = None,
-        datefmt: Optional[str]   = None,
-        logfile: Optional[str]   = None,
-        gname:   Optional[str]   = None
+        level:     Level         = 0,
+        formatter: Formatter     = logging.Formatter(),
+        filters:   List[Filter]  = [],
+        options:   Options       = {},
+        handlers:  List[Handler] = [],
+        gname:     Optional[str] = None
 ) -> logging.Logger:
-    if output.replace(" ", "") not in \
-            ("stream", "file", "stream,file", "file,stream"):
-        raise TypeError(
-            "parameter 'output' can only be 'stream', 'file', or "
-            f"'stream,file', not '{output}'."
+    logger = logging.Logger(name, level)
+
+    if formatter.__class__ is dict:
+        formatter = logging.Formatter(**formatter)
+
+    for handler_or_params in handlers:
+        if isinstance(handler_or_params, logging.Handler):
+            logger.addHandler(handler_or_params)
+            continue
+
+        if "formatter" in handler_or_params:
+            the_formatter: Formatter = handler_or_params.pop("formatter")
+            if the_formatter.__class__ is dict:
+                the_formatter = logging.Formatter(**the_formatter)
+        else:
+            the_formatter = formatter
+
+        the_level:   Level         = handler_or_params.pop("level", level)
+        the_filters: List[Filter]  = handler_or_params.pop("filters", filters)
+        the_options: Options       = handler_or_params.pop("options", options)
+
+        handler_type: Type[logging.Handler] = \
+            getattr(logging_handlers, handler_or_params.pop("name"))
+
+        if issubclass(handler_type, logging.FileHandler):
+            filename: str = handler_or_params["filename"]
+            logdir:   str = os.path.dirname(os.path.abspath(filename))
+            os.makedirs(logdir, exist_ok=True)
+
+        handler: logging.Handler = handler_type(**handler_or_params)
+        handler.setLevel(the_level)
+        handler.setFormatter(the_formatter)
+        handler.filters.extend(
+            x for x in the_filters if x not in handler.filters
         )
 
-    logger    = logging.Logger(name, level)
-    formatter = logging.Formatter(logfmt, datefmt)
+        if the_options.get("onlyRecordCurrentLevel"):
+            handler.addFilter(only_record_current_level(handler.level))
 
-    if "stream" in output:
-        handler = logging.StreamHandler()
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-
-    if "file" in output:
-        if logfile is None:
-            starter: str = os.path.basename(sys.argv[0])
-            logfile: str = f"/var/log/{starter[:-3]}.log"
-
-        logdir: str = os.path.dirname(os.path.abspath(logfile))
-        os.path.isdir(logdir) or os.makedirs(logdir)
-
-        handler = logging.FileHandler(logfile, encoding="utf8")
-        handler.setFormatter(formatter)
         logger.addHandler(handler)
 
     if gname:
-        if not hasattr(gcode, "__first__") or \
-                gcode.__first__.name == "builtin":
-            gcode.__first__ = logger
+        if not hasattr(gcode, "default") or gcode.default.name == "default":
+            gcode.default = logger
         setattr(gpack, gname, logger)
 
     return logger
+
+
+def only_record_current_level(
+        levelno: int
+) -> Callable[[logging.LogRecord], bool]:
+    return lambda record: record.levelno == levelno
 
 
 def __getattr__(method: str) -> Closure:
@@ -83,27 +149,16 @@ def __getattr__(method: str) -> Closure:
 
     def logger(
             *msg,
-            sep:     str           = " ",
-            oneline: bool          = False,
-            linesep: str           = "; ",
-            gname:   Union[Logger] = None,
+            sep:     str              = " ",
+            oneline: bool             = False,
+            linesep: str              = "; ",
+            gname:   Optional[Logger] = None,
             **kw
     ) -> None:
         if gname is None:
-            if not hasattr(gcode, "__first__"):
-                gobj: logging.Logger = __init__(
-                    name="builtin",
-                    level=gpack.level,
-                    output=gpack.output,
-                    logfmt=gpack.logfmt,
-                    datefmt=gpack.datefmt,
-                    **({"logfile": gpack.logfile} if gpack.logfile !=
-                        "/var/log/{default is your startup filename}.log"
-                       else {}),
-                    gname="builtin"
-                )
-                setattr(gcode, "__first__", gobj)
-            gobj: logging.Logger = __first__
+            if not hasattr(gcode, "default"):
+                __init__("default", **gpack.default, gname="default")
+            gobj: logging.Logger = default
         elif gname.__class__ is str:
             gobj: logging.Logger = getattr(gpack, gname, None)
             if gobj.__class__ is not logging.Logger:
