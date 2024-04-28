@@ -21,9 +21,9 @@ setuptools.setup(
     description="""
         Secondary encapsulation `logging`, more convenient and fast to create
         the logger. Use this module can quickly create instances of
-        `logging.Logger` and complete a series of log configuration,make your
+        `logging.Logger` and complete a series of log configuration, make your
         code cleaner.
-    """,
+    """.strip().replace('\n       ', ''),
     long_description=open("README.md", encoding="utf8").read(),
     long_description_content_type="text/markdown",
     packages=[g.__name__],

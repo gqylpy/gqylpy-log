@@ -103,9 +103,9 @@ def __init__(
         else:
             the_formatter = formatter
 
-        the_level:   Level         = handler_or_params.pop("level", level)
-        the_filters: List[Filter]  = handler_or_params.pop("filters", filters)
-        the_options: Options       = handler_or_params.pop("options", options)
+        the_level:   Level        = handler_or_params.pop("level", level)
+        the_filters: List[Filter] = handler_or_params.pop("filters", filters)
+        the_options: Options      = handler_or_params.pop("options", options)
 
         handler_type: Type[logging.Handler] = \
             getattr(logging_handlers, handler_or_params.pop("name"))
@@ -162,7 +162,9 @@ def __getattr__(method: str) -> Closure:
         elif gname.__class__ is str:
             gobj: logging.Logger = getattr(gpack, gname, None)
             if gobj.__class__ is not logging.Logger:
-                raise NameError(f"gname '{gname}' not in '{__package__}'.")
+                raise NameError(
+                    f"gname '{gname}' not found in '{__package__}'."
+                )
         elif gname.__class__ is logging.Logger:
             gobj: logging.Logger = gname
         else:
