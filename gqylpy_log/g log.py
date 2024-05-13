@@ -93,6 +93,16 @@ def __init__(
 
     for handler_or_params in handlers:
         if isinstance(handler_or_params, logging.Handler):
+            if handler_or_params.level == 0:
+                handler_or_params.setLevel(level)
+            if handler_or_params.formatter is None:
+                handler_or_params.setFormatter(formatter)
+            for x in filters:
+                handler_or_params.addFilter(x)
+            if options.get("onlyRecordCurrentLevel"):
+                handler_or_params.filters.append(
+                    only_record_current_level(handler_or_params.level)
+                )
             logger.addHandler(handler_or_params)
             continue
 
@@ -118,12 +128,10 @@ def __init__(
         handler: logging.Handler = handler_type(**handler_or_params)
         handler.setLevel(the_level)
         handler.setFormatter(the_formatter)
-        handler.filters.extend(
-            x for x in the_filters if x not in handler.filters
-        )
-
+        for x in the_filters:
+            handler.addFilter(x)
         if the_options.get("onlyRecordCurrentLevel"):
-            handler.addFilter(only_record_current_level(handler.level))
+            handler.filters.append(only_record_current_level(handler.level))
 
         logger.addHandler(handler)
 
@@ -174,17 +182,9 @@ def __getattr__(method: str) -> Closure:
             )
 
         if sys.version_info >= (3, 8):
-            if "stacklevel" in kw:
-                if kw["stacklevel"].__class__ is not int:
-                    if not kw["stacklevel"].isdigit():
-                        raise TypeError(
-                            "parameter 'stacklevel' type must be 'int', "
-                            f"not '{kw['stacklevel'].__class__.__name__}'."
-                        )
-                    kw["stacklevel"] = int(kw["stacklevel"])
-                if kw["stacklevel"] < 2:
-                    kw["stacklevel"] = 2
-            else:
+            if "stacklevel" not in kw:
+                kw["stacklevel"] = 2
+            elif kw["stacklevel"] < 2:
                 kw["stacklevel"] = 2
 
         msg: str = sep.join(str(m) for m in msg)
