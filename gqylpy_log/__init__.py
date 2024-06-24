@@ -6,7 +6,7 @@ complete a series of log configuration, make your code cleaner.
     >>> import gqylpy_log as glog
     >>> glog.info(...)
 
-    @version: 2.0.1
+    @version: 2.0.2
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-log
 

@@ -88,7 +88,7 @@ def __init__(
 ) -> logging.Logger:
     logger = logging.Logger(name, level)
 
-    if formatter.__class__ is dict:
+    if isinstance(formatter, dict):
         formatter = logging.Formatter(**formatter)
 
     for handler_or_params in handlers:
