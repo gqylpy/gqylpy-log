@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 Secondary encapsulation `logging`, more convenient and fast to create the
 logger. Use this module can quickly create instances of `logging.Logger` and
@@ -6,12 +7,12 @@ complete a series of log configuration, make your code cleaner.
     >>> import gqylpy_log as glog
     >>> glog.info(...)
 
-    @version: 2.0.2
+    @version: 0.0alpha1
     @author: 竹永康 <gqylpy@outlook.com>
     @source: https://github.com/gqylpy/gqylpy-log
 
 ────────────────────────────────────────────────────────────────────────────────
-Copyright (c) 2022-2024 GQYLPY <http://gqylpy.com>. All rights reserved.
+Copyright (c) 2022-2025 GQYLPY <http://gqylpy.com>. All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,59 +26,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import sys
-import logging
-
-from typing import \
-    TypeVar, Optional, TypedDict, Union, Callable, Mapping, Dict, List, Any
-
-if sys.version_info >= (3, 9):
-    from typing import Annotated
-else:
-    class Annotated(metaclass=type('', (type,), {
-        '__new__': lambda *a: type.__new__(*a)()
-    })):
-        def __getitem__(self, *a): ...
-
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    TypeAlias = TypeVar("TypeAlias")
-
-Logger: TypeAlias = TypeVar("Logger", str, logging.Logger)
-Level:  TypeAlias = TypeVar("Level", int, str)
-
-
-class DictFormatter(TypedDict, total=False):
-    fmt:      str
-    datefmt:  str
-    style:    str
-    validate: bool
-
-    if sys.version_info >= (3, 10):
-        defaults: Mapping[str, Any]
-
-
-class Options(TypedDict, total=False):
-    onlyRecordCurrentLevel: bool
-
-
-Formatter: TypeAlias = Union[DictFormatter, logging.Formatter]
-
-Filter: TypeAlias = Union[
-    Callable[[logging.LogRecord], bool], logging.Filter, logging.Filterer
-]
-
-Handler: TypeAlias = Union[Dict[str, Any], logging.Handler]
-
-
-class DefaultLoggerConfig(TypedDict, total=False):
-    level:     Level
-    formatter: Formatter
-    filters:   List[Filter]
-    options:   Options
-    handlers:  List[Handler]
-
 
 NOTSET   = 0
 DEBUG    = 10
@@ -88,42 +36,26 @@ ERROR    = 40
 CRITICAL = 50
 FATAL    = CRITICAL
 
-default: Annotated[DefaultLoggerConfig, """
-    The default logger config.
-
-    The default logger is built into this module, with a configuration as
-    follows: a level of `NOTSET`, a general log output format, and a
-    `StreamHandler` processing handler.
-
-    You can adjust the configuration of the default logger as needed, but please
-    note that the default logger is created when the logging method is first
-    called. Only modifications made before this point will take effect.
-
-    Additionally, when you initialize a custom logger using `__init__` for the
-    first time and specify the `gname` parameter, the default logger will be
-    overwritten and permanently disabled. From then on, your first custom logger
-    will be used as the default logger.
-"""] = {
+default = {
     "level": NOTSET,
     "formatter": {
         "fmt": "[%(asctime)s] [%(module)s.%(funcName)s.line%(lineno)d] "
                "[%(levelname)s] %(message)s",
-        "datefmt": "%F %T"
+        "datefmt": "%Y-%m-%d %H:%M:%S"
     },
     "handlers": [{"name": "StreamHandler"}]
 }
 
 
 def __init__(
-        name:      str,
-        *,
-        level:     Optional[Level]         = None,
-        formatter: Optional[Formatter]     = None,
-        filters:   Optional[List[Filter]]  = None,
-        options:   Optional[Options]       = None,
-        handlers:  Optional[List[Handler]] = None,
-        gname:     Optional[str]           = None
-) -> logging.Logger:
+        name,
+        level     = None,
+        formatter = None,
+        filters   = None,
+        options   = None,
+        handlers  = None,
+        gname     = None
+):
     """Get a `logging.Logger` instance, or initialize it into this module.
 
     @param name:
@@ -215,22 +147,12 @@ def __init__(
     """
 
 
-def __call__(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
+def __call__(msg, oneline=None, linesep=None, gname=None, **kw):
     """
     Record a log entry.
 
     @param msg:
         Log messages, supporting almost any object.
-
-    @param sep:
-        A string inserted between log messages, defaulting to a space.
 
     @param oneline:
         Make the output log content always one line, defaulting to False. If the
@@ -262,93 +184,49 @@ def __call__(
     """
 
 
-def debug(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def debug(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-def info(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def info(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-def warning(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def warning(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-def error(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def error(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-def exception(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def exception(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-def critical(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def critical(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-def fatal(
-        *msg:    Any,
-        sep:     Optional[str]    = None,
-        oneline: Optional[bool]   = None,
-        linesep: Optional[str]    = None,
-        gname:   Optional[Logger] = None,
-        **kw
-) -> None:
-    __call__(*msg, sep=sep, oneline=oneline, linesep=linesep, gname=gname, **kw)
+def fatal(msg, oneline=None, linesep=None, gname=None, **kw):
+    __call__(msg, oneline=oneline, linesep=linesep, gname=gname, **kw)
 
 
-class _xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
-    gpack = globals()
-    gcode = __import__(f"{__name__}.g {__name__[7:]}", fromlist=...)
+class xe6_xad_x8c_xe7_x90_xaa_xe6_x80_xa1_xe7_x8e_xb2_xe8_x90_x8d_xe4_xba_x91:
+    import sys
 
-    for gname, gfunc in gpack.copy().items():
-        if gname[0] != "_" and callable(gfunc):
-            del gpack[gname]
+    gpath = __name__ + '.g ' + __name__[7:]
+    __import__(gpath)
 
-    __init__, __getattr__ = gcode.__init__, gcode.__getattr__
+    gpack = sys.modules[__name__]
+    gcode = globals()['g ' + __name__[7:]]
 
-    __init__.__module__ = __getattr__.__module__ = __package__
+    for gname in globals():
+        if gname[0] != '_':
+            gfunc = getattr(gcode, gname, None)
+            if gfunc and getattr(gfunc, '__module__', None) == gpath:
+                gfunc.__module__ = __package__
+                gfunc.__doc__ = getattr(gpack, gname).__doc__
+                setattr(gpack, gname, gfunc)
 
-    gpack["__init__"], gpack["__getattr__"] = __init__, __getattr__
+    gpack.__init__ = gcode.__init__
